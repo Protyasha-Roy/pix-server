@@ -100,18 +100,6 @@ app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
-// Authentication middleware
-app.use(async (req, res, next) => {
-  // Add your authentication logic here based on user ID, token, etc.
-  const userId = req.headers['user-id'];
-
-  if (!userId) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-
-  req.userId = userId;
-  next();
-});
 
 // Create or update a project
 app.post('/createOrUpdateProject', async (req, res) => {
