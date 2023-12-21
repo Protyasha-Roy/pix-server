@@ -134,6 +134,41 @@ app.post('/createOrUpdateProject', async (req, res) => {
   }
 });
 
+app.post('/signin', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Check if the email already exists in the collection
+    const existingUser = await usersCollection.findOne({ email });
+
+    if (existingUser) {
+      // If email exists, check if the password matches
+      const passwordMatch = await bcrypt.compare(password, existingUser.password);
+
+      if (passwordMatch) {
+        // If password matches, consider it as a signin
+        res.status(200).json({ message: 'Login successful', userId: existingUser._id });
+      } else {
+        // If password doesn't match, return an error
+        res.status(401).json({ message: 'Password did not match' });
+      }
+    } else {
+      // If email doesn't exist, create a new user and consider it as a signup
+      const _id = new ObjectId(); // Generate a new ObjectId
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Save the new user to the collection
+      await usersCollection.insertOne({ _id, email, password: hashedPassword });
+
+      res.status(200).json({ message: 'Signup successful', userId: _id });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
 // Retrieve a project based on its ID
 app.get('/getProject/:projectId', async (req, res) => {
   try {
