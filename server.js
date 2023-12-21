@@ -24,8 +24,7 @@ connection.once('open', () => {
 });
 
 const usersCollection = connection.collection('users');
-const studentsCollection = connection.collection('students');
-const attendanceCollection = connection.collection('attendance');
+
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
