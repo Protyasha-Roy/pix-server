@@ -10,7 +10,7 @@ const bcrypt = require('bcrypt');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '10mb'}));
 app.use(cors());
 app.use(express.json());
 
@@ -24,7 +24,7 @@ connection.once('open', () => {
 });
 
 const usersCollection = connection.collection('users');
-
+const artsCollection = connection.collection('arts');
 
 app.get('/', (req, res) => {
   res.send('Hello, World!');
@@ -64,6 +64,61 @@ app.post('/signin', async (req, res) => {
   }
 });
 
+
+app.post('/save', async (req, res) => {
+  try {
+      const { userId, artName, pixels, width, height, artId } = req.body;
+
+      if (!artId) {
+          // If artId is not provided, create a new art
+          const result = await artsCollection.insertOne({ userId, artName, pixels, width, height });
+          res.json({ _id: result.insertedId, message: 'Pixel art created successfully' });
+      } else {
+          // If artId is provided, update the existing art
+          const updatedArt = await artsCollection.findOneAndUpdate(
+              { _id: new ObjectId(artId) },
+              { $set: { userId, artName, pixels, width, height } },
+              { returnDocument: 'after' } // Return the updated document
+          );
+
+
+          res.json({ _id: artId, message: 'Pixel art updated successfully' });
+      }
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+
+app.get('/getArt/:artId', async (req, res) => {
+  try {
+      const artId = req.params.artId;
+
+      // Fetch the pixel art data based on the art ID
+      const art = await artsCollection.findOne({ _id: new ObjectId(artId) });
+
+      res.json({ art });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.get('/userArts', async (req, res) => {
+  try {
+    const userId = req.query.userId; // Get the userId from the query parameters
+    if (!userId) {
+      return res.status(400).json({ message: 'UserId is required' });
+    }
+
+    const arts = await artsCollection.find({ userId }).toArray();
+    res.json(arts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
