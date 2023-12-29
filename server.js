@@ -91,31 +91,6 @@ app.post('/save', async (req, res) => {
 });
 
 
-app.get('/getArt/:artId', async (req, res) => {
-  try {
-      const artId = req.params.artId;
-
-      // Fetch the pixel art data based on the art ID
-      const art = await artsCollection.findOne({ _id: new ObjectId(artId) });
-
-      res.json({ art });
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-app.get('/getPixelData', async (req, res) => {
-  try {
-    const artId = req.query.artId;
-    const pixelData = await PixelDataModel.findOne({ artId });
-    res.json(pixelData || {});
-  } catch (error) {
-    console.error('Error retrieving pixel data:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
 app.get('/userArts', async (req, res) => {
   try {
     const userId = req.query.userId; // Get the userId from the query parameters
@@ -128,6 +103,16 @@ app.get('/userArts', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+app.get('/getArtData', async (req, res) => {
+  const artId = req.query.artId;
+  try {
+      const art = await artsCollection.find({ _id: new ObjectId(artId) }).toArray();
+      res.json(art);
+  } catch (error) {
+      res.status(500).json({ error: 'Error fetching art data' });
   }
 });
 
