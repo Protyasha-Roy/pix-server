@@ -105,6 +105,17 @@ app.get('/getArt/:artId', async (req, res) => {
   }
 });
 
+app.get('/getPixelData', async (req, res) => {
+  try {
+    const artId = req.query.artId;
+    const pixelData = await PixelDataModel.findOne({ artId });
+    res.json(pixelData || {});
+  } catch (error) {
+    console.error('Error retrieving pixel data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/userArts', async (req, res) => {
   try {
     const userId = req.query.userId; // Get the userId from the query parameters
