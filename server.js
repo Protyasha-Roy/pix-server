@@ -116,6 +116,28 @@ app.get('/getArtData', async (req, res) => {
   }
 });
 
+app.delete('/deleteArt', async (req, res) => {
+  try {
+      const artId = req.query.artId;
+
+      if (!artId) {
+          return res.status(400).json({ error: 'Missing artId parameter' });
+      }
+
+      // Delete the art with the specified ID
+      const result = await artsCollection.deleteOne({ _id: new ObjectId(artId) });
+
+      if (result.deletedCount === 1) {
+          res.json({ success: true });
+      } else {
+          res.status(404).json({ error: 'Art not found' });
+      }
+  } catch (error) {
+      console.error('Error deleting art:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
