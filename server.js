@@ -67,7 +67,7 @@ app.post('/signin', async (req, res) => {
 
 app.post('/save', async (req, res) => {
   try {
-      const { userId, artName, pixels, width, height, artId } = req.body;
+      const { userId, artName, pixels, width, height, artId, pixelSize } = req.body;
 
       if (!artId) {
           // If artId is not provided, create a new art
