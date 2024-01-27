@@ -71,13 +71,13 @@ app.post('/save', async (req, res) => {
 
       if (!artId) {
           // If artId is not provided, create a new art
-          const result = await artsCollection.insertOne({ userId, artName, pixels, width, height });
+          const result = await artsCollection.insertOne({ userId, artName, pixels, width, height, pixelSize });
           res.json({ _id: result.insertedId, message: 'Pixel art created successfully' });
       } else {
           // If artId is provided, update the existing art
           const updatedArt = await artsCollection.findOneAndUpdate(
               { _id: new ObjectId(artId) },
-              { $set: { userId, artName, pixels, width, height } },
+              { $set: { userId, artName, pixels, width, height, pixelSize } },
               { returnDocument: 'after' } // Return the updated document
           );
 
